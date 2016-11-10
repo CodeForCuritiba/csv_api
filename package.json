@@ -1,0 +1,23 @@
+{
+  "name": "tows",
+  "version": "0.0.1",
+  "description": "Webservice from CSV",
+  "main": "index.js",
+  "dependencies": {
+    "api2go": "0.0.24"
+  },
+  "author": "Thierry Delbart <thierry@thde.pro>",
+  "license": "MIT",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "webservice",
+    "json",
+    "csv"
+  ]
+}
