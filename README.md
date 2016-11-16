@@ -17,6 +17,7 @@ NodeJs and NPM installed
 ### Installation
 
 `$> git pull ....`
+
 `$> npm install`
 
 ### Configuration
@@ -30,6 +31,8 @@ Edit config file
 ## Contributing
 
 [View issues](https://github.com/CodeForCuritiba/tows/issues)
+
+**If no issues exists for the funcionality you want to add, please add it first and assign it to you.**
 
 Contact: 
 Code For Curitiba => code4cwb ( a ) gmail.com
