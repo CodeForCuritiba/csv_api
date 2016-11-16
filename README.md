@@ -29,9 +29,10 @@ Edit config file
 
 ## Contributing
 
-View issues
+[View issues](https://github.com/CodeForCuritiba/tows/issues)
 
-Contact: Code For Curitiba code4cwb ( a ) gmail.com
+Contact: 
+Code For Curitiba => code4cwb ( a ) gmail.com
 
 
 
