@@ -2,7 +2,7 @@
 
 *TO WebService* is a small api that import open datas from a CSV file and serve them as simple GET api.
 
-## What it sould do
+## What it should do
 
  1. Sync CSV File into relational database (MariaDB ? postgreSql?)
  2. Serve datas with GET request with `search` parameter describing the request 
