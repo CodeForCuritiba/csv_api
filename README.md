@@ -7,6 +7,7 @@
  1. Sync CSV File into relational database (MariaDB ? postgreSql?)
  2. Serve datas with GET request with `search` parameter describing the request 
  3. Cloud hosting (Heroku?)
+ 4. Automatic documentation
 
 ## First steps
 
