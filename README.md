@@ -5,7 +5,7 @@
 ## What it should do
 
  1. Sync CSV File into mongoDB database
- 2. Serve datas from GET request with `find`, `order` e `limit` parameter describing the request 
+ 2. Serve datas from GET requests
  3. Cloud hosting (Heroku?)
  4. Automatic documentation
  
