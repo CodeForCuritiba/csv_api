@@ -8,6 +8,15 @@
  2. Serve datas from GET request with `find`, `order` e `limit` parameter describing the request 
  3. Cloud hosting (Heroku?)
  4. Automatic documentation
+ 
+## Routes
+
+ - `/` : web service automatic documentation
+ - `/:base_slug` : return json with base description
+ - `/:base_slug/item` : return one row from the csv as json. Using query parameter: `find`
+ - `/:base_slug/items` : return a list of rows from the csv as json. Using query parameters: `find`, `order`, `limit`
+ - `/:base_slug/fields` : return the csv column names
+ - `/:base_slug/:fieldname`: return all unique value from a column
 
 ## First steps
 
