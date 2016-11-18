@@ -19,7 +19,7 @@ mongoose.Promise = global.Promise;
 
 var Schema     = mongoose.Schema;
 
-var csvSchema = new Schema({ slug:  String, name: String, url: String, columns: [ { name: String }] }, { strict: false });
+var csvSchema = new Schema({ slug:  String, name: String, url: String, fields: [ { name: String }] }, { strict: false });
 var CsvModel = mongoose.model('csv', csvSchema);
 
 var itemSchema = new Schema({ base: String }, { strict: false });
@@ -91,7 +91,7 @@ if (base.hasOwnProperty('csv') && base.csv.length > 0) {
       router.get('/' + csv.slug + '/items', function(req, res) {
         var find = (req.query.find) ? JSON.parse(req.query.find) : {};
         find["base"] = csv.slug;
-        var options = {};
+        var options = {'limit': 30};
         if (req.query.limit) options['limit'] = req.query.limit;
         if (req.query.order) options['order'] = req.query.order;
         if (req.query.skip) options['skip'] = req.query.skip;
@@ -111,16 +111,23 @@ if (base.hasOwnProperty('csv') && base.csv.length > 0) {
           if (err) {
             res.json(false);   
           } else {
-            res.json(doc.columns);   
+            res.json(doc.fields);   
           }
         })
       });
 
       router.get('/' + csv.slug + '/:field', function(req, res) {
-        ItemModel.find().distinct(req.params.field, function(err, values) {
+        ItemModel.aggregate(    [
+          { "$group": { "_id": "$" + req.params.field } },
+          { "$limit": 200 }
+        ],function(err, results) {
           if (err) {
             res.json(false);   
           } else {
+            var values = [];
+            for (var i = results.length - 1; i >= 0; i--) {
+              values.push(results[i]['_id']);
+            };
             res.json(values);   
           }
         });
@@ -152,7 +159,7 @@ router.get('/sync', function(req, res) {
         var separator = (csv.hasOwnProperty('separator')) ? csv.separator : ';';
         var line_validator = (csv.hasOwnProperty('line_validator')) ? csv.line_validator : /^[-\s]+$/g;
 
-        var columns = [];
+        var fields = [];
         var items = [];
 
         CsvModel.findOneAndUpdate(
@@ -189,15 +196,15 @@ router.get('/sync', function(req, res) {
                   // function below was for logging memory usage
                   line = line.trim();
 
-                  if (columns.length == 0 && line.length > 0) {
-                    var column_names = line.split(separator);
-                    for(var j = 0; j < column_names.length; j++) {
-                      var column_name = column_names[j];
+                  if (fields.length == 0 && line.length > 0) {
+                    var field_names = line.split(separator);
+                    for(var j = 0; j < field_names.length; j++) {
+                      var field_name = field_names[j];
 
-                      columns.push({ name: column_name});
+                      fields.push({ name: field_name});
                     }
 
-                    csv.columns = columns;
+                    csv.fields = fields;
                     csv.save();
 
                   } else {
@@ -208,7 +215,7 @@ router.get('/sync', function(req, res) {
                       var item = { base: csv.slug };
 
                       for(var j = 0; j < field_values.length; j++) {
-                        item[columns[j].name] = field_values[j].trim();
+                        item[fields[j].name] = field_values[j].trim();
                       }
 
                       items.push(item);
@@ -224,12 +231,12 @@ router.get('/sync', function(req, res) {
                   s.resume();
                 })
                 .on('error', function(e){
-                  res.json({ success: false, columns: columns, nb_items: items.length, message: 'Error while reading file.' + e });   
+                  res.json({ success: false, fields: fields, nb_items: items.length, message: 'Error while reading file.' + e });   
                   console.log('Error while reading file.',e);
 
                 })
                 .on('end', function(){
-                  res.json({ success: false, columns: columns, nb_items: items.length});   
+                  res.json({ success: false, fields: fields, nb_items: items.length});   
                   console.log('Read entire file.')
                 })
               );
