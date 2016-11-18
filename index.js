@@ -33,8 +33,6 @@ try {
 
   config = JSON.parse(process.env.CONFIG !== undefined ? process.env.CONFIG : readFile("config.json"));
 
-console.log(config);
-
   if (config !== undefined && config.hasOwnProperty('base')) {
     console.log("********************************************************************************");
     console.log("Loaded configs:");
@@ -251,7 +249,7 @@ app.use('/', router);
 
 // START THE SERVER
 // =============================================================================
-var port = config.hasOwnProperty('port') ? config.port : 8080;        // set our port
+var port = process.env.PORT || (config.hasOwnProperty('port') ? config.port : 8080);        // set our port
 app.listen(port);
 console.log('Magic happens on port ' + port);
 
