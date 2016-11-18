@@ -5,7 +5,10 @@
   "main": "index.js",
   "dependencies": {
     "api2go": "0.0.24",
-    "express": "^4.14.0"
+    "event-stream": "^3.3.4",
+    "express": "^4.14.0",
+    "mongoose": "^4.6.8",
+    "request": "^2.78.0"
   },
   "author": "Thierry Delbart <thierry@thde.pro>",
   "license": "MIT",
