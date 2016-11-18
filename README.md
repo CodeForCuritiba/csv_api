@@ -66,7 +66,7 @@ Rename `config.json.template` to `config.json` and edit it.
  - `heroku addons:create mongolab:sandbox`
  - `git push heroku master`
 
-**Example: ** https://csvapi.herokuapp.com
+**Example:** https://csvapi.herokuapp.com/solicitacao
 
 ## Contributing
 
