@@ -3,19 +3,34 @@
 
 // the packages we need
 var express    = require('express');        // call express
-var mongoose     = require('mongoose');
-var Schema     = mongoose.Schema;
 
 // loading custom functions
 require('./utils');
 
 var app        = express();                 // define our app using express
 
+// LOAD MODELS
+// =============================================================================
+
+var mongoose     = require('mongoose');
+
+// Use native promises
+mongoose.Promise = global.Promise;
+
+var Schema     = mongoose.Schema;
+
+var csvSchema = new Schema({ slug:  String, name: String, url: String, columns: [ { name: String }] }, { strict: false });
+var CsvModel = mongoose.model('csv', csvSchema);
+
+var itemSchema = new Schema({ base: String }, { strict: false });
+var ItemModels = [];
+
+
 // READ CONFIG
 // =============================================================================
 var config = undefined;
 try {
-  config = JSON.parse(readFile("config.json"));
+  config = process.env.CONFIG || JSON.parse(readFile("config.json"));
   if (config !== undefined && config.hasOwnProperty('base')) {
     console.log("********************************************************************************");
     console.log("Loaded configs:");
@@ -49,26 +64,65 @@ if (base.hasOwnProperty('csv') && base.csv.length > 0) {
     var csv = base.csv[i];
     if (csv.hasOwnProperty('slug')) {
 
+      if (!ItemModels.hasOwnProperty(csv.slug)) {
+        ItemModels[csv.slug] = mongoose.model(csv.slug, itemSchema);
+      }
+
+      var ItemModel = ItemModels[csv.slug];
+
       router.get('/' + csv.slug, function(req, res) {
           res.json( base );   
       });
 
       router.get('/' + csv.slug + '/item', function(req, res) {
-          res.json({ 'res': {} });   
+        var find = (req.query.find) ? JSON.parse(req.query.find) : {};
+        find["base"] = csv.slug;
+        ItemModel.findOne(find, function (err,item) {
+          if (err) {
+            res.json(false);   
+          } else {
+            res.json(item);   
+          }
+        })
       });
 
       router.get('/' + csv.slug + '/items', function(req, res) {
-          res.json({ 'res': [] });   
+        var find = (req.query.find) ? JSON.parse(req.query.find) : {};
+        find["base"] = csv.slug;
+        var options = {};
+        if (req.query.limit) options['limit'] = req.query.limit;
+        if (req.query.order) options['order'] = req.query.order;
+        if (req.query.skip) options['skip'] = req.query.skip;
+        ItemModel.find(find, options, function (err,items) {
+          if (err) {
+            res.json(false);   
+          } else {
+            res.json(items);   
+          }
+        })
       });
 
       router.get('/' + csv.slug + '/fields', function(req, res) {
-          res.json({ fields: ['col1','col2','col3'] });   
+        var find = {};
+        find["slug"] = csv.slug;
+        CsvModel.findOne(find, function(err,doc) {
+          if (err) {
+            res.json(false);   
+          } else {
+            res.json(doc.columns);   
+          }
+        })
       });
 
       router.get('/' + csv.slug + '/:field', function(req, res) {
-          res.json({ field: req.params.field });   
+        ItemModel.find().distinct(req.params.field, function(err, values) {
+          if (err) {
+            res.json(false);   
+          } else {
+            res.json(values);   
+          }
+        });
       });
-
 
     }
   }
@@ -82,12 +136,6 @@ var fs = require('fs')
   , stream = require('stream')
   , request = require('request')
   , es = require('event-stream');
-
-var csvSchema = new Schema({ slug:  String, name: String, url: String, columns: [ { name: String }] }, { strict: false });
-var CsvModel = mongoose.model('csv', csvSchema);
-
-var itemSchema = new Schema({ base: String }, { strict: false });
-var ItemModels = [];
 
 router.get('/sync', function(req, res) {
 
