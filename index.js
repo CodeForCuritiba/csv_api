@@ -31,7 +31,7 @@ var ItemModels = [];
 var config = undefined;
 try {
 
-  config = JSON.parse(process.env.CONFIG); // !== undefined ? process.env.CONFIG : JSON.parse(readFile("config.json"));
+  config = JSON.parse(process.env.CONFIG !== undefined ? process.env.CONFIG : readFile("config.json"));
 
 console.log(config);
 
