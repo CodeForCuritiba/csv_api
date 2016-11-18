@@ -31,9 +31,9 @@ var ItemModels = [];
 var config = undefined;
 try {
 
-console.log(process.env.CONFIG);
+  config = JSON.parse(process.env.CONFIG); // !== undefined ? process.env.CONFIG : JSON.parse(readFile("config.json"));
 
-  config = process.env.CONFIG; // !== undefined ? process.env.CONFIG : JSON.parse(readFile("config.json"));
+console.log(config);
 
   if (config !== undefined && config.hasOwnProperty('base')) {
     console.log("********************************************************************************");

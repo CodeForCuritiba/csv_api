@@ -3,7 +3,7 @@
 	"database": "mongodb://localhost/csv_api",
 	"max_parsing_lines": 10,
 	"base": {
-		"name": "156",
+		"name": "solicitacao",
 		"description": "Base de Dados contendo as solicitações geradas na Central 156, principal canal de comunicação entre o cidadão e a Prefeitura Municipal de Curitiba. Inclui todas as demandas direcionadas às Secretarias e Órgãos da Administração Municipal. Estes dados são oriundos do Sistema Integrado de Atendimento ao Cidadão - SIAC.",
 		"csv": [
 			{
