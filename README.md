@@ -1,6 +1,6 @@
-# tows
+# CSV API
 
-*TO WebService* is a small api that import open datas from a CSV file and serve them as simple GET api.
+*CSV API* is a small api that import open datas from a list of CSV file and serve them through simple GET api.
 
 ## What it should do
 
