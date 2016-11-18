@@ -40,12 +40,14 @@ Rename `config.json.template` to `config.json` and edit it.
 ```
 {
 	"port": 8080,
+	"database": "mongodb://localhost/csv_api",
+	"max_parsing_lines": 10,
 	"base": {
 		"name": "156",
 		"description": "Base de Dados contendo as solicitações geradas na Central 156, principal canal de comunicação entre o cidadão e a Prefeitura Municipal de Curitiba. Inclui todas as demandas direcionadas às Secretarias e Órgãos da Administração Municipal. Estes dados são oriundos do Sistema Integrado de Atendimento ao Cidadão - SIAC.",
 		"csv": [
 			{
-				"slug":"base",
+				"slug":"solicitacao",
 				"name":"156 - Base de Dados",
 				"url":"http://multimidia.curitiba.pr.gov.br/dadosabertos/156/2016-11-01_156_-_Base_de_Dados.csv"
 			}
@@ -57,6 +59,14 @@ Rename `config.json.template` to `config.json` and edit it.
 ### Running / Testing
 
 `$> node index.js`
+
+## Heroku deploy
+
+ - `heroku create mycsvapi`
+ - `heroku addons:create mongolab:sandbox`
+ - `git push heroku master`
+
+**Example: ** https://csvapi.herokuapp.com
 
 ## Contributing
 
