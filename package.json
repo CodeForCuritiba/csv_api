@@ -28,5 +28,9 @@
     "opendata",
     "json",
     "csv"
-  ]
+  ],
+  "engines": {
+    "node": ">= 6",
+    "npm": ">= 3"
+  }
 }
