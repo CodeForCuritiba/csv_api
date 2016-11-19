@@ -72,7 +72,7 @@ Rename `config.json.template` to `config.json` and edit it.
  - `heroku config:set CONFIG={..}` (copy from `config.json.template` and change database connection string)
  - `git push heroku master`
 
-**Example:** https://csvapi.herokuapp.com/156
+**Example:** https://csvapi.herokuapp.com
 
 ## Contributing
 
