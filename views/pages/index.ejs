@@ -1,0 +1,61 @@
+<% include ../partials/header %>
+
+<div class="row">
+    <div class="col-sm-4">
+    
+        <div class="jumbotron">
+            <h1><%= base.name %></h1>
+            <p><%= base.description %></p>
+        </div>
+        
+    </div>
+    <div class="col-sm-8">
+        
+        <% base.csv.forEach(function(csv) { %>
+        <div class="well">
+            <h3>Base <em><%= csv.slug %><em></h3>
+            <p><a href="<%= csv.url %>"><%= csv.url %></a></p>
+        </div>
+        <div class="chapter">
+        	<h4>Detalhes da base</h4>
+            <p><a href="/<%= csv.slug %>" target="csv_api"><%= domain %>/<%= csv.slug %></a></p>
+        </div>
+        <hr>
+        <div class="chapter">
+        	<h4>Recuperar um elemento</h4>
+        	<p><%= domain %>/<%= csv.slug %>/item?<em>&lt;parametros&gt;</em></p>
+        	<p>Os parametros podem ser:</p>
+        	<ul>
+        		<li><em>find</em>:</li>
+        	</ul>
+            <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/item?<%= csv.docs.example_find_item %>" target="csv_api"><%= domain %>/<%= csv.slug %>/item?<%= csv.docs.example_find_item %></a></p>
+        </div>
+        <hr>
+        <div class="chapter">
+        	<h4>Procurar elementos</h4>
+        	<p><%= domain %>/<%= csv.slug %>/items?<em>&lt;parametros&gt;</em></p>
+        	<p>Os parametros podem ser:</p>
+        	<ul>
+        		<li><em>find</em>:</li>
+        		<li><em>sort</em>:</li>
+        		<li><em>limit</em>:</li>
+        		<li><em>skip</em>:</li>
+        	</ul>
+            <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/items?<%= csv.docs.example_find_items %>" target="csv_api"><%= domain %>/<%= csv.slug %>/items?<%= csv.docs.example_find_items %></a></p>
+        </div>
+        <hr>
+        <div class="chapter">
+        	<h4>Recuperar os campos da base</h4>
+            <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/fields" target="csv_api"><%= domain %>/<%= csv.slug %>/fields</a></p>
+        </div>
+        <hr>
+        <div class="chapter">
+        	<h4>Recuperar todos valores de um campo</h4>
+            <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/<%= csv.docs.example_field_values %>" target="csv_api"><%= domain %>/<%= csv.slug %>/<%= csv.docs.example_field_values %></a></p>
+        </div>
+        <% }); %>
+
+    </div>
+</div>
+
+<% include ../partials/footer %>

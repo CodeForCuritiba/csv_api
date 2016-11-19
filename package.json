@@ -4,6 +4,7 @@
   "description": "Webservice from CSV",
   "main": "index.js",
   "dependencies": {
+    "ejs": "^2.5.2",
     "event-stream": "^3.3.4",
     "express": "^4.14.0",
     "mongoose": "^4.6.8",
@@ -20,6 +21,12 @@
     "start": "node index.js"
   },
   "keywords": [
-    "nodejs","express","webservice","api","opendata","json","csv"
+    "nodejs",
+    "express",
+    "webservice",
+    "api",
+    "opendata",
+    "json",
+    "csv"
   ]
 }

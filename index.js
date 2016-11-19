@@ -9,6 +9,9 @@ require('./utils');
 
 var app        = express();                 // define our app using express
 
+// set the view engine to ejs
+app.set('view engine', 'ejs');
+
 // LOAD MODELS
 // =============================================================================
 
@@ -58,7 +61,10 @@ mongoose.connect(database);
 var router = express.Router();              // get an instance of the express Router
 
 router.get('/', function(req, res) {
-    res.json({ message: 'Hooray! Welcome to our api! Coming soon a complete documentation' });   
+    res.render('pages/index',{
+        base: base,
+        domain: req.protocol + "://" + req.get('host')
+    });
 });
 
 if (base.hasOwnProperty('csv') && base.csv.length > 0) {
@@ -92,10 +98,11 @@ if (base.hasOwnProperty('csv') && base.csv.length > 0) {
         var find = (req.query.find) ? JSON.parse(req.query.find) : {};
         find["base"] = csv.slug;
         var options = {'limit': 30};
-        if (req.query.limit) options['limit'] = req.query.limit;
+        if (req.query.limit) options['limit'] = 1 * req.query.limit;
         if (req.query.order) options['order'] = req.query.order;
         if (req.query.skip) options['skip'] = req.query.skip;
-        ItemModel.find(find, options, function (err,items) {
+        console.log(find,options);
+        ItemModel.find(find, {}, options, function (err,items) {
           if (err) {
             res.json(false);   
           } else {
