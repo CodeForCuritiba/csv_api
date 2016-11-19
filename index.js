@@ -1,269 +1,138 @@
-// BASE SETUP
-// =============================================================================
+'use strict'
 
-// the packages we need
-const express    = require('express');        // call express
+const bluebird = require('bluebird');
+global.Promise = bluebird;
 
-// loading custom functions
-require('./utils');
+const env = process.env.NODE_ENV || 'development';
+const config = require(process.env.CONFIG || './config.json');
+const joi = require('joi');
+const express = require('express');
+const mongoose = require('mongoose');
+mongoose.connect(env === 'test' ? config.test_database : config.database);
 
-const app        = express();                 // define our app using express
+const { ItemModel, CSVModel } = require('./models');
 
-// set the view engine to ejs
+const app = express();
+module.exports = app;
+
 app.set('view engine', 'ejs');
 
-// LOAD MODELS
-// =============================================================================
+app.get('/', (req, res) => {
+  res.render('pages/index', {
+    base: config.base,
+    domain: `${req.protocol}://${req.get('host')}`
+  });
+});
 
-const mongoose     = require('mongoose');
+const baseSchemaValidator = (base) => {
+  const baseSchema = joi.object().keys({
+    name: joi.string().required(),
+    description: joi.string().required(),
+    csv: joi.array().items({
+      slug: joi.string().required(),
+      name: joi.string().required(),
+      url: joi.string().required(),
+      docs: joi.object().keys({
+        example_find_item: joi.string().optional(),
+        example_find_items: joi.string().optional(),
+        example_field_values: joi.string().optional()
+      })
+    })
+  });
 
-// Use native promises
-mongoose.Promise = global.Promise;
-
-const Schema     = mongoose.Schema;
-
-const csvSchema = new Schema({ slug:  String, name: String, url: String, fields: [ { name: String }] }, { strict: false });
-const CsvModel = mongoose.model('csv', csvSchema);
-
-const itemSchema = new Schema({ base: String }, { strict: false });
-const ItemModels = [];
-
-
-// READ CONFIG
-// =============================================================================
-const config = undefined;
-try {
-
-  config = JSON.parse(process.env.CONFIG !== undefined ? process.env.CONFIG : readFile("config.json"));
-
-  if (config !== undefined && config.hasOwnProperty('base')) {
-    console.log("********************************************************************************");
-    console.log("Loaded configs:");
-    console.log(config);
-    console.log("********************************************************************************");
-  } else {
-    throw new Exception();
-  }
-} catch (e) {
-  console.log("CRITICAL ERROR! Couldn't load config.json!");
-  console.log(e);
-  console.log("Application will exit.");
-  process.exit();
+  const validate = Promise.promisify(joi.validate);
+  return validate(base, baseSchema);
 }
 
-const base = config.base;
+const validateBases = (bases) => {
+  return (validator) => {
+    return Promise.map(bases, base => {
+      return validator(base);
+    }).then(_result => true);
+  }
+};
 
-const database = config.database;
-mongoose.connect(database);
+app.get('/:slug', (req, res) => {
+  res.json(config.base);
+});
 
-// ROUTES FOR OUR API
-// =============================================================================
-const router = express.Router();              // get an instance of the express Router
+app.get('/:slug/item', (req, res) => {
+  const find = (req.query.find) ? JSON.parse(req.query.find) : {};
+  find['base'] = req.params.slug;
 
-router.get('/', function(req, res) {
-    res.render('pages/index',{
-        base: base,
-        domain: req.protocol + "://" + req.get('host')
+  ItemModel.findOne(find)
+    .then(result => {
+      if (!result) return res.json({});
+      res.json(result);
+    })
+    .catch(err => {
+      console.error(`Error on ${req.path}, err: ${err}`);
+      res.status(500).end();
     });
 });
 
-if (base.hasOwnProperty('csv') && base.csv.length > 0) {
-  for(const i = 0; i < base.csv.length; i++) {
-    const csv = base.csv[i];
-    if (csv.hasOwnProperty('slug')) {
+app.get('/:slug/items', (req, res) => {
+  const find = (req.query.find) ? JSON.parse(req.query.find) : {};
+  find['base'] = req.params.slug;
+  
+  const options = { 'limit': 30 };
+  if (req.query.limit) options['limit'] = 1 * req.query.limit;
+  if (req.query.order) options['order'] = req.query.order;
+  if (req.query.skip)  options['skip']  = req.query.skip;
 
-      if (!ItemModels.hasOwnProperty(csv.slug)) {
-        ItemModels[csv.slug] = mongoose.model(csv.slug, itemSchema);
-      }
-
-      const ItemModel = ItemModels[csv.slug];
-
-      router.get('/' + csv.slug, function(req, res) {
-          res.json( base );   
-      });
-
-      router.get('/' + csv.slug + '/item', function(req, res) {
-        const find = (req.query.find) ? JSON.parse(req.query.find) : {};
-        find["base"] = csv.slug;
-        ItemModel.findOne(find, function (err,item) {
-          if (err) {
-            res.json(false);   
-          } else {
-            res.json(item);   
-          }
-        })
-      });
-
-      router.get('/' + csv.slug + '/items', function(req, res) {
-        const find = (req.query.find) ? JSON.parse(req.query.find) : {};
-        find["base"] = csv.slug;
-        const options = {'limit': 30};
-        if (req.query.limit) options['limit'] = 1 * req.query.limit;
-        if (req.query.order) options['order'] = req.query.order;
-        if (req.query.skip) options['skip'] = req.query.skip;
-        console.log(find,options);
-        ItemModel.find(find, {}, options, function (err,items) {
-          if (err) {
-            res.json(false);   
-          } else {
-            res.json(items);   
-          }
-        })
-      });
-
-      router.get('/' + csv.slug + '/fields', function(req, res) {
-        const find = {};
-        find["slug"] = csv.slug;
-        CsvModel.findOne(find, function(err,doc) {
-          if (err) {
-            res.json(false);   
-          } else {
-            res.json(doc.fields);   
-          }
-        })
-      });
-
-      router.get('/' + csv.slug + '/:field', function(req, res) {
-        ItemModel.aggregate(    [
-          { "$group": { "_id": "$" + req.params.field } },
-          { "$limit": 200 }
-        ],function(err, results) {
-          if (err) {
-            res.json(false);   
-          } else {
-            const values = [];
-            for (const i = results.length - 1; i >= 0; i--) {
-              values.push(results[i]['_id']);
-            };
-            res.json(values);   
-          }
-        });
-      });
-
-    }
-  }
-}
-
-
-// ROUTES FOR OUR API
-// =============================================================================
-const fs = require('fs')
-  , util = require('util')
-  , stream = require('stream')
-  , request = require('request')
-  , es = require('event-stream');
-
-router.get('/sync', function(req, res) {
-
-  const lineNr = 0;
-  if (base.hasOwnProperty('csv') && base.csv.length > 0) {
-    for(const i = 0; i < base.csv.length; i++) {
-      const csv = base.csv[i];
-
-      if (csv.hasOwnProperty('url')) {
-        const url = csv.url;
-
-        const separator = (csv.hasOwnProperty('separator')) ? csv.separator : ';';
-        const line_validator = (csv.hasOwnProperty('line_validator')) ? csv.line_validator : /^[-\s]+$/g;
-
-        const fields = [];
-        const items = [];
-
-        CsvModel.findOneAndUpdate(
-          { 'slug' : csv.slug },
-          csv,
-          { 'new': true, 'upsert': true },
-          function(err, csv) {
-            if (err) {
-              console.log(err);
-              //TODO
-            }
-
-            if (!ItemModels.hasOwnProperty(csv.slug)) {
-              ItemModels[csv.slug] = mongoose.model(csv.slug, itemSchema);
-            }
-
-            const ItemModel = ItemModels[csv.slug];
-            ItemModel.remove({ base: csv.slug }, function(err) {
-              if (err) {
-                console.log(err);
-                //TODO
-              }
-
-              const s = request({url: url})
-                .pipe(es.split())
-                .pipe(es.mapSync(function(line){
-
-                  // pause the readstream
-                  s.pause();
-
-                  lineNr += 1;
-
-                  // process line here and call s.resume() when rdy
-                  // function below was for logging memory usage
-                  line = line.trim();
-
-                  if (fields.length == 0 && line.length > 0) {
-                    const field_names = line.split(separator);
-                    for(const j = 0; j < field_names.length; j++) {
-                      const field_name = field_names[j];
-
-                      fields.push({ name: field_name});
-                    }
-
-                    csv.fields = fields;
-                    csv.save();
-
-                  } else {
-
-                    const field_values = line.split(separator);
-
-                    if (field_values.length > 0 && !line_validator.test(field_values[0])) {
-                      const item = { base: csv.slug };
-
-                      for(const j = 0; j < field_values.length; j++) {
-                        item[fields[j].name] = field_values[j].trim();
-                      }
-
-                      items.push(item);
-                      itemObj = new ItemModel(item);
-                      itemObj.save();
-                    }
-
-                  }
-
-                  if (config.hasOwnProperty('max_parsing_lines') && lineNr >= config.max_parsing_lines) s.close();
-
-                  // resume the readstream, possibly from a callback
-                  s.resume();
-                })
-                .on('error', function(e){
-                  res.json({ success: false, fields: fields, nb_items: items.length, message: 'Error while reading file.' + e });   
-                  console.log('Error while reading file.',e);
-
-                })
-                .on('end', function(){
-                  res.json({ success: false, fields: fields, nb_items: items.length});   
-                  console.log('Read entire file.')
-                })
-              );
-
-            });
-
-          }
-        );
-      }
-    }
-  }
+  ItemModel.find(find, {}, options) 
+    .then(results => {
+      if (!results.length) return res.json([]);
+      res.json(results);
+    })
+    .catch(err => {
+      console.error(`Error on ${req.path}, err: ${err}`);
+      res.status(500).end();
+    });
 });
 
-// REGISTER OUR ROUTES -------------------------------
-// all of our routes will be prefixed with /api
-app.use('/', router);
+app.get('/:slug/fields', (req, res) => {
+  const find = {};
+  find['slug'] = req.params.slug;
 
-// START THE SERVER
-// =============================================================================
-const port = process.env.PORT || (config.hasOwnProperty('port') ? config.port : 8080);        // set our port
-app.listen(port);
-console.log('Magic happens on port ' + port);
+  CSVModel.findOne(find)
+    .then(result => res.json(result.fields))
+    .catch(err => {
+      console.error(`Error on ${req.path}, err: ${err}`);
+      res.status(500).end();
+    });
+});
+
+app.get('/:slug/items/groupby/:field', (req, res) => {
+  ItemModel.aggregate([
+    { '$group': { '_id': '$' + req.params.field } },
+    { '$limit': 200 }
+  ], function (err, results) {
+    if (err) {
+      res.json(false);
+    } else {
+      const values = [];
+      for (let i = results.length - 1; i >= 0; i--) {
+        values.push(results[i]['_id']);
+      };
+      res.json(values);
+    }
+  });
+});
+
+validateBases([config.base])(baseSchemaValidator)
+  .then(result => {
+    if (env !== 'test') {
+      const port = process.env.PORT || config.port || 8080; // set our port
+      app.listen(port, err => {
+        if (err) return console.error(`Ops ${err}`);
+        console.log('Magic happens on port ' + port);
+      });
+    } else {
+      console.log('test mode');
+    }
+  }).catch(err => {
+    console.error(err.toString());
+  });
+
 
