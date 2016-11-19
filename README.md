@@ -62,7 +62,7 @@ Rename `config.json.template` to `config.json` and edit it.
 
 ### Running / Testing
 
-`$> node index.js`
+`$> node index.js` or `$> npm start`
 
 ## Heroku deploy
 
