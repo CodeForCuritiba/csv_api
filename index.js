@@ -2,12 +2,12 @@
 // =============================================================================
 
 // the packages we need
-var express    = require('express');        // call express
+const express    = require('express');        // call express
 
 // loading custom functions
 require('./utils');
 
-var app        = express();                 // define our app using express
+const app        = express();                 // define our app using express
 
 // set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -15,23 +15,23 @@ app.set('view engine', 'ejs');
 // LOAD MODELS
 // =============================================================================
 
-var mongoose     = require('mongoose');
+const mongoose     = require('mongoose');
 
 // Use native promises
 mongoose.Promise = global.Promise;
 
-var Schema     = mongoose.Schema;
+const Schema     = mongoose.Schema;
 
-var csvSchema = new Schema({ slug:  String, name: String, url: String, fields: [ { name: String }] }, { strict: false });
-var CsvModel = mongoose.model('csv', csvSchema);
+const csvSchema = new Schema({ slug:  String, name: String, url: String, fields: [ { name: String }] }, { strict: false });
+const CsvModel = mongoose.model('csv', csvSchema);
 
-var itemSchema = new Schema({ base: String }, { strict: false });
-var ItemModels = [];
+const itemSchema = new Schema({ base: String }, { strict: false });
+const ItemModels = [];
 
 
 // READ CONFIG
 // =============================================================================
-var config = undefined;
+const config = undefined;
 try {
 
   config = JSON.parse(process.env.CONFIG !== undefined ? process.env.CONFIG : readFile("config.json"));
@@ -51,14 +51,14 @@ try {
   process.exit();
 }
 
-var base = config.base;
+const base = config.base;
 
-var database = config.database;
+const database = config.database;
 mongoose.connect(database);
 
 // ROUTES FOR OUR API
 // =============================================================================
-var router = express.Router();              // get an instance of the express Router
+const router = express.Router();              // get an instance of the express Router
 
 router.get('/', function(req, res) {
     res.render('pages/index',{
@@ -68,22 +68,22 @@ router.get('/', function(req, res) {
 });
 
 if (base.hasOwnProperty('csv') && base.csv.length > 0) {
-  for(var i = 0; i < base.csv.length; i++) {
-    var csv = base.csv[i];
+  for(const i = 0; i < base.csv.length; i++) {
+    const csv = base.csv[i];
     if (csv.hasOwnProperty('slug')) {
 
       if (!ItemModels.hasOwnProperty(csv.slug)) {
         ItemModels[csv.slug] = mongoose.model(csv.slug, itemSchema);
       }
 
-      var ItemModel = ItemModels[csv.slug];
+      const ItemModel = ItemModels[csv.slug];
 
       router.get('/' + csv.slug, function(req, res) {
           res.json( base );   
       });
 
       router.get('/' + csv.slug + '/item', function(req, res) {
-        var find = (req.query.find) ? JSON.parse(req.query.find) : {};
+        const find = (req.query.find) ? JSON.parse(req.query.find) : {};
         find["base"] = csv.slug;
         ItemModel.findOne(find, function (err,item) {
           if (err) {
@@ -95,9 +95,9 @@ if (base.hasOwnProperty('csv') && base.csv.length > 0) {
       });
 
       router.get('/' + csv.slug + '/items', function(req, res) {
-        var find = (req.query.find) ? JSON.parse(req.query.find) : {};
+        const find = (req.query.find) ? JSON.parse(req.query.find) : {};
         find["base"] = csv.slug;
-        var options = {'limit': 30};
+        const options = {'limit': 30};
         if (req.query.limit) options['limit'] = 1 * req.query.limit;
         if (req.query.order) options['order'] = req.query.order;
         if (req.query.skip) options['skip'] = req.query.skip;
@@ -112,7 +112,7 @@ if (base.hasOwnProperty('csv') && base.csv.length > 0) {
       });
 
       router.get('/' + csv.slug + '/fields', function(req, res) {
-        var find = {};
+        const find = {};
         find["slug"] = csv.slug;
         CsvModel.findOne(find, function(err,doc) {
           if (err) {
@@ -131,8 +131,8 @@ if (base.hasOwnProperty('csv') && base.csv.length > 0) {
           if (err) {
             res.json(false);   
           } else {
-            var values = [];
-            for (var i = results.length - 1; i >= 0; i--) {
+            const values = [];
+            for (const i = results.length - 1; i >= 0; i--) {
               values.push(results[i]['_id']);
             };
             res.json(values);   
@@ -147,7 +147,7 @@ if (base.hasOwnProperty('csv') && base.csv.length > 0) {
 
 // ROUTES FOR OUR API
 // =============================================================================
-var fs = require('fs')
+const fs = require('fs')
   , util = require('util')
   , stream = require('stream')
   , request = require('request')
@@ -155,19 +155,19 @@ var fs = require('fs')
 
 router.get('/sync', function(req, res) {
 
-  var lineNr = 0;
+  const lineNr = 0;
   if (base.hasOwnProperty('csv') && base.csv.length > 0) {
-    for(var i = 0; i < base.csv.length; i++) {
-      var csv = base.csv[i];
+    for(const i = 0; i < base.csv.length; i++) {
+      const csv = base.csv[i];
 
       if (csv.hasOwnProperty('url')) {
-        var url = csv.url;
+        const url = csv.url;
 
-        var separator = (csv.hasOwnProperty('separator')) ? csv.separator : ';';
-        var line_validator = (csv.hasOwnProperty('line_validator')) ? csv.line_validator : /^[-\s]+$/g;
+        const separator = (csv.hasOwnProperty('separator')) ? csv.separator : ';';
+        const line_validator = (csv.hasOwnProperty('line_validator')) ? csv.line_validator : /^[-\s]+$/g;
 
-        var fields = [];
-        var items = [];
+        const fields = [];
+        const items = [];
 
         CsvModel.findOneAndUpdate(
           { 'slug' : csv.slug },
@@ -183,14 +183,14 @@ router.get('/sync', function(req, res) {
               ItemModels[csv.slug] = mongoose.model(csv.slug, itemSchema);
             }
 
-            var ItemModel = ItemModels[csv.slug];
+            const ItemModel = ItemModels[csv.slug];
             ItemModel.remove({ base: csv.slug }, function(err) {
               if (err) {
                 console.log(err);
                 //TODO
               }
 
-              var s = request({url: url})
+              const s = request({url: url})
                 .pipe(es.split())
                 .pipe(es.mapSync(function(line){
 
@@ -204,9 +204,9 @@ router.get('/sync', function(req, res) {
                   line = line.trim();
 
                   if (fields.length == 0 && line.length > 0) {
-                    var field_names = line.split(separator);
-                    for(var j = 0; j < field_names.length; j++) {
-                      var field_name = field_names[j];
+                    const field_names = line.split(separator);
+                    for(const j = 0; j < field_names.length; j++) {
+                      const field_name = field_names[j];
 
                       fields.push({ name: field_name});
                     }
@@ -216,12 +216,12 @@ router.get('/sync', function(req, res) {
 
                   } else {
 
-                    var field_values = line.split(separator);
+                    const field_values = line.split(separator);
 
                     if (field_values.length > 0 && !line_validator.test(field_values[0])) {
-                      var item = { base: csv.slug };
+                      const item = { base: csv.slug };
 
-                      for(var j = 0; j < field_values.length; j++) {
+                      for(const j = 0; j < field_values.length; j++) {
                         item[fields[j].name] = field_values[j].trim();
                       }
 
@@ -263,7 +263,7 @@ app.use('/', router);
 
 // START THE SERVER
 // =============================================================================
-var port = process.env.PORT || (config.hasOwnProperty('port') ? config.port : 8080);        // set our port
+const port = process.env.PORT || (config.hasOwnProperty('port') ? config.port : 8080);        // set our port
 app.listen(port);
 console.log('Magic happens on port ' + port);
 
