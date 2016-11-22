@@ -4,7 +4,7 @@ const bluebird = require('bluebird');
 global.Promise = bluebird;
 
 const env = process.env.NODE_ENV || 'development';
-const config = require(process.env.CONFIG || './config.json');
+const config = JSON.parse(process.env.CONFIG) || require('./config.json');
 const joi = require('joi');
 const express = require('express');
 const mongoose = require('mongoose');
