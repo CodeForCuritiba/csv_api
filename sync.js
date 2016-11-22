@@ -5,7 +5,7 @@
 const bluebird = require('bluebird');
 global.Promise = bluebird;
 
-const config = require(process.env.CONFIG || './config.json');
+const config = JSON.parse(process.env.CONFIG) || require('./config.json');
 
 const mongoose = require('mongoose');
 mongoose.connect(config.database);
@@ -54,7 +54,7 @@ function sync(config, CSVModel, ItemModel) {
         i = i + 1;
 
         if (config.hasOwnProperty('max_parsing_lines') && i>=config.max_parsing_lines) return false;
-
+console.log(i);
         if (Object.keys(record).length > 0 && record[Object.keys(record)[0]] !== undefined && !line_validator.test(record[Object.keys(record)[0]])) {
           record['base'] = csv.slug;
           values.push(record);
