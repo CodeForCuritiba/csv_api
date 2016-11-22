@@ -5,7 +5,6 @@ global.Promise = bluebird;
 
 const env = process.env.NODE_ENV || 'development';
 const config = require(process.env.CONFIG || './config.json');
-const { sync } = require('./utils');
 const joi = require('joi');
 const express = require('express');
 const mongoose = require('mongoose');
@@ -124,16 +123,11 @@ app.get('/:slug/items/groupby/:field', (req, res) => {
 validateBases([config.base])(baseSchemaValidator)
   .then(() => {
     if (env !== 'test') {
-      console.log('Loading ...');
-      sync(config, CSVModel, ItemModel)
-        .then(() => {
-          console.log('... ready !');
-          const port = process.env.PORT || config.port || 8080; // set our port
-          app.listen(port, err => {
-            if (err) return console.error(`Ops ${err}`);
-            console.log('Magic happens on port ' + port);
-          });
-        });
+      const port = process.env.PORT || config.port || 8080; // set our port
+      app.listen(port, err => {
+        if (err) return console.error(`Ops ${err}`);
+        console.log('Magic happens on port ' + port);
+      });
     } else {
       console.log('test mode');
     }
