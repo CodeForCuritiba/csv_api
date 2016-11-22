@@ -60,19 +60,27 @@ Rename `config.json.template` to `config.json` and edit it.
 }
 ```
 
+### Sync database with csv files
+
+`$> node sync.js`
+
 ### Running / Testing
 
 `$> node index.js` or `$> npm start`
 
 ## Heroku deploy
 
+**Example:** https://csvapi.herokuapp.com
+
  - `heroku create mycsvapi`
  - `heroku addons:create mongolab:sandbox`
  - `heroku config:get MONGODB_URI` to get database connection string
  - `heroku config:set CONFIG={..}` (copy from `config.json.template` and change database connection string)
  - `git push heroku master`
-
-**Example:** https://csvapi.herokuapp.com
+ 
+ ### Sync database
+ 
+ `heroku run node sync.js` 
 
 ## Contributing
 
