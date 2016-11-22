@@ -4,21 +4,34 @@
   "description": "Webservice from CSV",
   "main": "index.js",
   "dependencies": {
+    "bluebird": "^3.4.6",
+    "csv": "^1.1.0",
+    "csv-parse": "^1.1.7",
+    "csv-parser": "^1.11.0",
     "ejs": "^2.5.2",
     "event-stream": "^3.3.4",
     "express": "^4.14.0",
+    "joi": "^10.0.1",
+    "lodash": "^4.17.2",
     "mongoose": "^4.6.8",
     "request": "^2.78.0"
   },
   "author": "Thierry Delbart <thierry@thde.pro>",
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2",
+    "mongo-in-memory": "0.0.5",
+    "supertest": "^2.0.1"
+  },
   "repository": {
     "type": "git",
     "url": ""
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "sync": "node sync.js",
+    "test": "NODE_ENV=test mocha -b"
   },
   "keywords": [
     "nodejs",
@@ -28,5 +41,9 @@
     "opendata",
     "json",
     "csv"
-  ]
+  ],
+  "engines": {
+    "node": ">= 6",
+    "npm": ">= 3"
+  }
 }
