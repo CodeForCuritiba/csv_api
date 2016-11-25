@@ -83,6 +83,19 @@ Rename `config.json.template` to `config.json` and edit it.
  
 `$> heroku run node sync.js` 
 
+
+### Using deploy script
+
+Quick deploy can be done using `deploy-heroku.sh` script as following:
+
+`$> sh deploy-heroku.sh <appname> <base_configfile_url>`
+
+This will execute all the command mentioned before
+
+*Example:*
+
+`$> sh deploy-heroku.sh opendisqueeconomia http://opencuritiba.herokuapp.com/bases/disqueeconomia.json`
+
 ## Contributing
 
 [View issues](https://github.com/CodeForCuritiba/tows/issues)
