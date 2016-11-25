@@ -74,8 +74,9 @@ Rename `config.json.template` to `config.json` and edit it.
 
  - `heroku create mycsvapi`
  - `heroku addons:create mongolab:sandbox`
- - `heroku config:get MONGODB_URI` to get database connection string
- - `heroku config:set CONFIG={..}` (copy from `config.json.template` and change database connection string)
+ - `heroku config:set BASE_JSON=http://xxxxxxxxxxxxxxxxx`
+ - `heroku config:set NODE_ENV=production`
+ - `heroku config:set CONFIG={}`
  - `git push heroku master`
  
 ### Sync database
