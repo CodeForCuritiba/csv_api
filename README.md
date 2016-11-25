@@ -77,6 +77,7 @@ Rename `config.json.template` to `config.json` and edit it.
  - `heroku config:set BASE_JSON=http://xxxxxxxxxxxxxxxxx`
  - `heroku config:set NODE_ENV=production`
  - `heroku config:set CONFIG={}`
+ - `heroku config:set CSV_PORTAL={"name":"Xxxxxxxx","url":"http://xxxxxxxxxxxxxxxxx"}`
  - `git push heroku master`
  
 ### Sync database
