@@ -38,6 +38,7 @@ if ( base_json ) {
 app.get('/', (req, res) => {
   res.render('pages/index', {
     base: config.base,
+    csv_portal: process.env.CSV_PORTAL || config.csv_portal,
     domain: `${req.protocol}://${req.get('host')}`
   });
 });

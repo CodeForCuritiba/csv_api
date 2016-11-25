@@ -63,12 +63,13 @@ function sync(config, CSVModel, ItemModel) {
           });
       })
       .on('data', (record => {
-        i = i + 1;
 
-        if (config.hasOwnProperty('max_parsing_lines') && i>config.max_parsing_lines) {
+        if (config.hasOwnProperty('max_parsing_lines') && i=>config.max_parsing_lines) {
           dl.abort(); 
           return false;
         }
+
+        i = i + 1;
 
 //        console.log(record);
 
@@ -76,17 +77,16 @@ function sync(config, CSVModel, ItemModel) {
 
         if (Object.keys(record).length > 0 && record[Object.keys(record)[0]] !== undefined && !line_validator.test(record[Object.keys(record)[0]])) {
           record['base'] = csv.slug;
-          values.push(record);
           let item = new ItemModel(record);
           item.save();
         }
 
-        return record;
+        return true;
       }))
       .on('end', () => {
 //        ItemModel.remove({"base": csv.slug}).catch(err => { console.error(`On remove all from ${csv.slug}`)});
 //        ItemModel.insertMany(values);
-        console.log(`-- End parsing ${csv.slug} (${values.length} lines imported)`);
+        console.log(`-- End parsing ${csv.slug} (${i} lines imported)`);
         loop();
 
       });
