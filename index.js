@@ -4,11 +4,11 @@ const bluebird = require('bluebird');
 global.Promise = bluebird;
 
 const env = process.env.NODE_ENV || 'development';
-const config = JSON.parse(process.env.CONFIG) || require('./config.json');
+const config = (process.env.CONFIG) ? JSON.parse(process.env.CONFIG) : require('./config.json');
 const joi = require('joi');
 const express = require('express');
 const mongoose = require('mongoose');
-mongoose.connect(env === 'test' ? config.test_database : config.database);
+mongoose.connect(env === 'test' ? config.test_database : (process.env.MONGODB_URI || config.database));
 
 const { ItemModel, CSVModel } = require('./models');
 
@@ -16,6 +16,24 @@ const app = express();
 module.exports = app;
 
 app.set('view engine', 'ejs');
+
+const request = require('request');
+const base_json = process.env.BASE_JSON || config.base_json;
+if ( base_json ) {
+  try {
+
+    request(base_json, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        config.base = JSON.parse(body);
+      } else {
+        console.log(error,response);
+      }
+    });
+
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 app.get('/', (req, res) => {
   res.render('pages/index', {
