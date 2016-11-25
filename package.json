@@ -1,5 +1,5 @@
 {
-  "name": "tows",
+  "name": "cvs_api",
   "version": "0.0.1",
   "description": "Webservice from CSV",
   "main": "index.js",
@@ -11,6 +11,7 @@
     "ejs": "^2.5.2",
     "event-stream": "^3.3.4",
     "express": "^4.14.0",
+    "iconv-lite": "^0.4.15",
     "joi": "^10.0.1",
     "lodash": "^4.17.2",
     "mongoose": "^4.6.8",

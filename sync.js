@@ -12,6 +12,7 @@ mongoose.connect(process.env.MONGODB_URI || config.database);
 const { ItemModel, CSVModel } = require('./models');
 
 const request = require('request');
+const iconv = require('iconv-lite');
 const csvParser = require('csv-parser');
 const _ = require('lodash');
 
@@ -51,7 +52,9 @@ function sync(config, CSVModel, ItemModel) {
       ItemModel.remove({"base": csv.slug}).catch(err => { console.error(`On remove all from ${csv.slug}`)});
 
       const dl = request({url: csv.url});
-      dl.pipe(csvParser({separator: separator,raw: false}))
+      dl.pipe(iconv.decodeStream('ISO-8859-1'))
+      .pipe(iconv.encodeStream('utf8'))
+      .pipe(csvParser({separator: separator,raw: false}))
       .on('headers', (headers) => {
         console.log("Fields:",headers);
         insertModel(csv, headers)
@@ -61,12 +64,15 @@ function sync(config, CSVModel, ItemModel) {
       })
       .on('data', (record => {
         i = i + 1;
-        if ((i % 10) == 0) console.log(i);
 
         if (config.hasOwnProperty('max_parsing_lines') && i>config.max_parsing_lines) {
           dl.abort(); 
           return false;
         }
+
+//        console.log(record);
+
+        if ((i % 10) == 0) console.log(i);
 
         if (Object.keys(record).length > 0 && record[Object.keys(record)[0]] !== undefined && !line_validator.test(record[Object.keys(record)[0]])) {
           record['base'] = csv.slug;
