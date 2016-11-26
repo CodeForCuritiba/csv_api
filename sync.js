@@ -64,9 +64,7 @@ function sync(config, CSVModel, ItemModel) {
       })
       .on('data', (record => {
 
-        i = i;
-
-        console.log(config);
+        i = i; // this line is here because next line bugs on heroku production
 
         if (config.hasOwnProperty('max_parsing_lines') && i>=config.max_parsing_lines) {
           dl.abort(); 
