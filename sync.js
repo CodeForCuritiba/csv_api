@@ -64,7 +64,11 @@ function sync(config, CSVModel, ItemModel) {
       })
       .on('data', (record => {
 
-        if (config.hasOwnProperty('max_parsing_lines') && i=>config.max_parsing_lines) {
+        i = i;
+
+        console.log(config);
+
+        if (config.hasOwnProperty('max_parsing_lines') && i>=config.max_parsing_lines) {
           dl.abort(); 
           return false;
         }

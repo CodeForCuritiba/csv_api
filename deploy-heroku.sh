@@ -2,7 +2,7 @@
 
 # deploy_heroku - A script to deploy app to free heroku cloud server
 # Usage: $> sh deploy-heroku.sh <appname> <base_configfile_url>  [<portalname> <portalurl>]
-# Exemple: $> sh deploy-heroku.sh opendisqueeconomia http://opencuritiba.herokuapp.com/bases/disqueeconomia.json "Open Curitiba CSV Webservices" http://opencuritiba.herokuapp.com
+# Exemple: $> sh deploy-heroku.sh opendisqueeconomia https://opencuritiba.herokuapp.com/bases/disqueeconomia.json "Open Curitiba CSV Webservices" https://opencuritiba.herokuapp.com
 
 ##### Constants
 
@@ -14,7 +14,8 @@ TIME_STAMP="Updated on $RIGHT_NOW by $USER"
 echo "$TITLE"
 echo "$TIME_STAMP"
 
-if [ $# >= 3 ]; then
+if [[ $# -gt 1 ]]; then
+
 	heroku create $1
 
 	git remote add $1 https://git.heroku.com/$1.git
@@ -25,7 +26,7 @@ if [ $# >= 3 ]; then
 
 	heroku config:set NODE_ENV=production --app $1
 
-	if [ $# >= 5 ]; then
+	if [[ $# -gt 3 ]]; then
 
 		heroku config:set CONFIG="{\"csv_portal\":{\"name\":\"$3\",\"url\":\"$4\"}}" --app $1
 
