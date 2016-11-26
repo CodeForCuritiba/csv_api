@@ -16,6 +16,17 @@ const iconv = require('iconv-lite');
 const csvParser = require('csv-parser');
 const _ = require('lodash');
 
+// USING MONGO LIBRARY
+// 2016-11-26, Curitiba - Brazil // @quagliato
+const mongodb = require('mongodb');
+const mongoskin = require('mongoskin');
+const mongoConnection = mongoskin.db(process.env.MONGODB_URI || config.database, {
+  native_parser: true,
+  auto_reconnect: true,
+  poolSize: 5
+});
+
+
 function sync(config, CSVModel, ItemModel) {
   const insertModel = (csv, headers) => {
     const separator = csv.separator || ';';
@@ -35,6 +46,7 @@ function sync(config, CSVModel, ItemModel) {
       })
   };
 
+
   let n = 0;
   (function loop() {
     if (n < config.base.csv.length) {
@@ -44,6 +56,9 @@ function sync(config, CSVModel, ItemModel) {
       const separator = csv.separator || ';';
       const line_validator = new RegExp(csv.line_validator || /^[-\s]+$/g);
       const values = [];
+
+      let insertQueue = [];
+      let insertBatches = [];
 
       let i = 0;
 
@@ -71,27 +86,48 @@ function sync(config, CSVModel, ItemModel) {
           return false;
         }
 
-        i = i + 1;
+        i += 1;
 
-//        console.log(record);
-
-        if ((i % 10) == 0) console.log(i);
+        if ((i % 1000) === 0) {
+          console.log(i + " records enqueued");
+          insertBatches.push(insertQueue);
+          insertQueue = [];
+        }
 
         if (Object.keys(record).length > 0 && record[Object.keys(record)[0]] !== undefined && !line_validator.test(record[Object.keys(record)[0]])) {
           record['base'] = csv.slug;
-          let item = new ItemModel(record);
-          item.save();
-          item = record = undefined;
+          insertQueue.push(record);
         }
 
         return true;
       }))
       .on('end', () => {
-//        ItemModel.remove({"base": csv.slug}).catch(err => { console.error(`On remove all from ${csv.slug}`)});
-//        ItemModel.insertMany(values);
-        console.log(`-- End parsing ${csv.slug} (${i} lines imported)`);
-        loop();
+        let insertLoop = function(index, callback){
+          if (index >= insertBatches.length) {
+            return callback();
+          }
+          
+          let batch = insertBatches[index];
+          mongoConnection.collection('items').insert(batch, function(err, results){
+            if (err) return false;
+            if (results) console.log((index + 1)  + ' of ' + insertBatches.length + ' added!');
+            index += 1;
+            return insertLoop(index, callback);
+          });
+        };
 
+        return insertLoop(0, function(){
+          console.log(`-- End parsing ${csv.slug} (${i} lines imported)`);
+          loop();
+
+          return true;
+        });
+
+//        ItemModel.remove({"base": csv.slug}).catch(err => { console.error(`On remove all from ${csv.slug}`)});
+//        ItemModel.insertMany(insertQueue);
+        
+//        console.log(`-- End parsing ${csv.slug} (${i} lines imported)`);
+//        loop();
       });
     } else {
       console.log('Exit');
