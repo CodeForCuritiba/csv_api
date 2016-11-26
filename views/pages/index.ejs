@@ -1,7 +1,7 @@
 <% include ../partials/header %>
 
 <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-12">
 
         <% if (csv_portal.url) { %>
         <div>
@@ -12,13 +12,25 @@
         <div class="jumbotron">
             <h1><%= base.name %></h1>
             <p><%= base.description %></p>
+            <h3>Bases:</h3>
+            <ul>
+                <% base.csv.forEach(function(csv) { %>
+                <li><a href="#<%= csv.slug %>"><%= csv.name %></a></li>
+                <% }); %>
+            </ul>
+            <h3>Refernecias:</h3>
+            <ul>
+                <% base.refs.forEach(function(ref) { %>
+                <li><a href="<%= ref.url %>"><%= ref.name %></a></li>
+                <% }); %>
+            </ul>
         </div>
-        
+
     </div>
-    <div class="col-sm-8">
+    <div class="col-sm-12">
         
         <% base.csv.forEach(function(csv) { %>
-        <div class="well">
+        <div class="well" id="<%= csv.slug %>">
             <h3>Base <em><%= csv.slug %><em></h3>
             <p><a href="<%= csv.url %>"><%= csv.url %></a></p>
         </div>
