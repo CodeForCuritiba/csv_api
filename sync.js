@@ -57,7 +57,10 @@ function sync(config, CSVModel, ItemModel) {
       const line_validator = new RegExp(csv.line_validator || /^[-\s]+$/g);
       const values = [];
 
+      // The insertQueue will be filled until 1000 records.
       let insertQueue = [];
+      // When the insertQueue reaches 1000 records, it will be inserted as
+      // a batch.
       let insertBatches = [];
 
       let i = 0;
@@ -88,6 +91,8 @@ function sync(config, CSVModel, ItemModel) {
 
         i += 1;
 
+        // Every 1000 records, the queue will be cleaned and its content will
+        // be added as a batch.
         if ((i % 1000) === 0) {
           console.log(i + " records enqueued");
           insertBatches.push(insertQueue);
@@ -102,7 +107,16 @@ function sync(config, CSVModel, ItemModel) {
         return true;
       }))
       .on('end', () => {
+        // insertLoop process the batches (groups of 1000 records)
         let insertLoop = function(index, callback){
+
+          // If there's something left on the queue, insert it as a batch
+          if (insertQueue.length > 0) {
+            insertBatches.push(insertQueue);
+            insertQueue = [];
+          }
+
+          // When all batches are processed, call the callback
           if (index >= insertBatches.length) {
             return callback();
           }
