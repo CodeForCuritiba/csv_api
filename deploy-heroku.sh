@@ -25,11 +25,13 @@ if [ $# >= 3 ]; then
 
 	heroku config:set NODE_ENV=production --app $1
 
-	heroku config:set CONFIG={} --app $1
-
 	if [ $# >= 5 ]; then
 
-		heroku config:set CSV_PORTAL={"name":"$3" ,"url":"$4"}
+		heroku config:set CONFIG="{\"csv_portal\":{\"name\":\"$3\",\"url\":\"$4\"}}" --app $1
+
+	else
+
+		heroku config:set CONFIG={} --app $1
 
 	fi
 
