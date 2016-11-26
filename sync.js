@@ -45,7 +45,7 @@ function sync(config, CSVModel, ItemModel) {
       const line_validator = new RegExp(csv.line_validator || /^[-\s]+$/g);
       const values = [];
 
-      var i = 0;
+      let i = 0;
 
       console.log(`-- Parsing ${csv.slug}`);
 
@@ -81,6 +81,7 @@ function sync(config, CSVModel, ItemModel) {
           record['base'] = csv.slug;
           let item = new ItemModel(record);
           item.save();
+          item = record = undefined;
         }
 
         return true;
