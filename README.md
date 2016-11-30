@@ -2,9 +2,9 @@
 
 *CSV API* is a small api that import open datas from a list of CSV file and serve them through simple GET api.
 
-## What it should do
+## Why does *CSV API* do?
 
- 1. Sync CSV File into mongoDB database
+ 1. It import a list of CSV files into a mongoDB database
  2. Serve datas from GET requests
  3. Cloud hosting (Heroku?)
  4. Automatic documentation
