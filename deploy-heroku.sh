@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # deploy_heroku - A script to deploy app to free heroku cloud server
-# Usage: $> sh deploy-heroku.sh <appname> <base_configfile_url>  [<portalname> <portalurl>]
-# Exemple: $> sh deploy-heroku.sh opendisqueeconomia https://opencuritiba.herokuapp.com/bases/disqueeconomia.json "Open Curitiba CSV Webservices" https://opencuritiba.herokuapp.com
+# Usage: $> sh deploy-heroku.sh <appname> <base_configfile_url>
+# Exemple: $> sh deploy-heroku.sh opendisqueeconomia https://opencuritiba.herokuapp.com/bases/disqueeconomia.json
 
 ##### Constants
 
@@ -26,15 +26,7 @@ if [[ $# -gt 1 ]]; then
 
 	heroku config:set NODE_ENV=production --app $1
 
-	if [[ $# -gt 3 ]]; then
-
-		heroku config:set CONFIG="{\"csv_portal\":{\"name\":\"$3\",\"url\":\"$4\"}}" --app $1
-
-	else
-
-		heroku config:set CONFIG={} --app $1
-
-	fi
+	heroku config:set CONFIG={} --app $1
 
 	git push $1 master
 
@@ -42,7 +34,7 @@ if [[ $# -gt 1 ]]; then
 
 	echo  "Finished"
 else
-    echo "Wrong number of arguments: call should be like 'sh deploy-heroku.sh <appname> <base_configfile_url> [<portalname> <portalurl>]'"
+    echo "Wrong number of arguments: call should be like 'sh deploy-heroku.sh <appname> <base_configfile_url>'"
 fi
 
 
