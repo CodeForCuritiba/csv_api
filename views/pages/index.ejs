@@ -12,18 +12,22 @@
         <div class="jumbotron">
             <h1><%= base.name %></h1>
             <p><%= base.description %></p>
-            <h3>Bases:</h3>
-            <ul>
-                <% base.csv.forEach(function(csv) { %>
-                <li><a href="#<%= csv.slug %>"><%= csv.name %></a></li>
-                <% }); %>
-            </ul>
-            <h3>Refernecias:</h3>
-            <ul>
-                <% base.refs.forEach(function(ref) { %>
-                <li><a href="<%= ref.url %>"><%= ref.name %></a></li>
-                <% }); %>
-            </ul>
+            <% if (base.csv) { %>
+                <h3>Bases:</h3>
+                <ul>
+                    <% base.csv.forEach(function(csv) { %>
+                    <li><a href="#<%= csv.slug %>"><%= csv.name %></a></li>
+                    <% }); %>
+                </ul>
+            <% } %>
+            <% if (base.refs) { %>
+                <h3>Referências:</h3>
+                <ul>
+                    <% base.refs.forEach(function(ref) { %>
+                    <li><a href="<%= ref.url %>"><%= ref.name %></a></li>
+                    <% }); %>
+                </ul>
+            <% } %>
         </div>
 
     </div>
@@ -35,41 +39,53 @@
             <p><a href="<%= csv.url %>"><%= csv.url %></a></p>
         </div>
         <div class="chapter">
-        	<h4>Detalhes da base</h4>
+            <h4>Detalhes da base</h4>
             <p><a href="/<%= csv.slug %>" target="csv_api"><%= domain %>/<%= csv.slug %></a></p>
         </div>
         <hr>
         <div class="chapter">
-        	<h4>Recuperar um elemento</h4>
-        	<p><%= domain %>/<%= csv.slug %>/item?<em>&lt;parametros&gt;</em></p>
-        	<p>Os parametros podem ser:</p>
-        	<ul>
-        		<li><em>find</em>:</li>
-        	</ul>
-            <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/item?<%= csv.docs.example_find_item %>" target="csv_api"><%= domain %>/<%= csv.slug %>/item?<%= csv.docs.example_find_item %></a></p>
+            <h4>Recuperar um elemento</h4>
+            <p><%= domain %>/<%= csv.slug %>/item?<em>&lt;parametros&gt;</em></p>
+            <p>Os parametros podem ser:</p>
+            <ul>
+                <li><em>find</em>:</li>
+            </ul>
+
+            <% if (csv.docs && csv.docs.example_find_item) { %>
+                <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/item?<%= csv.docs.example_find_item %>" target="csv_api"><%= domain %>/<%= csv.slug %>/item?<%= csv.docs.example_find_item %></a></p>
+            <% } else { %>
+                <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/item?" target="csv_api"><%= domain %>/<%= csv.slug %>/item?</a></p>
+            <% } %>
         </div>
         <hr>
         <div class="chapter">
-        	<h4>Procurar elementos</h4>
-        	<p><%= domain %>/<%= csv.slug %>/items?<em>&lt;parametros&gt;</em></p>
-        	<p>Os parametros podem ser:</p>
-        	<ul>
-        		<li><em>find</em>:</li>
-        		<li><em>sort</em>:</li>
-        		<li><em>limit</em>:</li>
-        		<li><em>skip</em>:</li>
-        	</ul>
-            <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/items?<%= csv.docs.example_find_items %>" target="csv_api"><%= domain %>/<%= csv.slug %>/items?<%= csv.docs.example_find_items %></a></p>
+            <h4>Procurar elementos</h4>
+            <p><%= domain %>/<%= csv.slug %>/items?<em>&lt;parametros&gt;</em></p>
+            <p>Os parametros podem ser:</p>
+            <ul>
+                <li><em>find</em>:</li>
+                <li><em>sort</em>:</li>
+                <li><em>limit</em>:</li>
+                <li><em>skip</em>:</li>
+            </ul>
+            <% if (csv.docs && csv.docs.example_find_items) { %>
+                <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/items?<%= csv.docs.example_find_items %>" target="csv_api"><%= domain %>/<%= csv.slug %>/items?<%= csv.docs.example_find_items %></a></p>
+            <% } else { %>
+                <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/items?" target="csv_api"><%= domain %>/<%= csv.slug %>/items?</a></p>
+            <% } %>
         </div>
         <hr>
         <div class="chapter">
-        	<h4>Recuperar os campos da base</h4>
+            <h4>Recuperar os campos da base</h4>
             <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/fields" target="csv_api"><%= domain %>/<%= csv.slug %>/fields</a></p>
         </div>
         <hr>
         <div class="chapter">
-        	<h4>Recuperar todos valores de um campo</h4>
-            <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/<%= csv.docs.example_field_values %>" target="csv_api"><%= domain %>/<%= csv.slug %>/<%= csv.docs.example_field_values %></a></p>
+            <h4>Recuperar todos valores de um campo</h4>
+            <p><%= domain %>/<%= csv.slug %>/<strong><em>nome do campo</em></strong></p>
+            <% if (csv.docs && csv.docs.example_find_item) { %>
+                <p><strong>Exemplo:</strong> <a href="/<%= csv.slug %>/<%= csv.docs.example_field_values %>" target="csv_api"><%= domain %>/<%= csv.slug %>/<%= csv.docs.example_field_values %></a></p>
+            <% } %>
         </div>
         <% }); %>
 
