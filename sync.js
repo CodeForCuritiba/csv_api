@@ -23,7 +23,8 @@ const mongoskin = require('mongoskin');
 const mongoConnection = mongoskin.db(process.env.MONGODB_URI || config.database, {
   native_parser: true,
   auto_reconnect: true,
-  poolSize: 5
+  poolSize: 5,
+  server: { socketOptions: { connectTimeoutMS: 60000 }}
 });
 
 
