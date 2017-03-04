@@ -24,7 +24,8 @@ const mongoConnection = mongoskin.db(process.env.MONGODB_URI || config.database,
   native_parser: true,
   auto_reconnect: true,
   poolSize: 5,
-  server: { socketOptions: { connectTimeoutMS: 60000 }}
+  server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
+  replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } }
 });
 
 
