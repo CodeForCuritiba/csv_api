@@ -7,8 +7,8 @@ global.Promise = bluebird;
 
 const config = (process.env.CONFIG) ? JSON.parse(process.env.CONFIG) : require('./config.json');
 
-//const mongoose = require('mongoose');
-//mongoose.connect(process.env.MONGODB_URI || config.database);
+const mongoose = require('mongoose');
+mongoose.connect(process.env.MONGODB_URI || config.database);
 const { ItemModel, CSVModel } = require('./models');
 
 const request = require('request');
@@ -157,8 +157,6 @@ function sync(config, CSVModel, ItemModel) {
 
 
 return true;
-//  return Promise.map(config.base.csv, requestCSV);
-
 }
 
 
