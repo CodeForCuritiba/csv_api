@@ -7,8 +7,8 @@ global.Promise = bluebird;
 
 const config = (process.env.CONFIG) ? JSON.parse(process.env.CONFIG) : require('./config.json');
 
-const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGODB_URI || config.database);
+//const mongoose = require('mongoose');
+//mongoose.connect(process.env.MONGODB_URI || config.database);
 const { ItemModel, CSVModel } = require('./models');
 
 const request = require('request');
@@ -18,7 +18,7 @@ const _ = require('lodash');
 
 // USING MONGO LIBRARY
 // 2016-11-26, Curitiba - Brazil // @quagliato
-const mongodb = require('mongodb');
+//const mongodb = require('mongodb');
 const mongoskin = require('mongoskin');
 
 function sync(config, CSVModel, ItemModel) {

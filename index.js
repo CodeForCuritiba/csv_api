@@ -139,6 +139,24 @@ app.get('/:slug/:field', (req, res) => {
   });
 });
 
+app.get('/:slug/widget', (req, res) => {
+  ItemModel.aggregate([
+    { '$group': { '_id': '$' + req.params.field } },
+    { '$limit': 200 }
+  ], function (err, results) {
+    if (err) {
+      res.json(false);
+    } else {
+      const values = [];
+      for (let i = results.length - 1; i >= 0; i--) {
+        values.push(results[i]['_id']);
+      };
+      res.json(values);
+    }
+  });
+});
+
+
 validateBases([config.base])(baseSchemaValidator)
   .then(() => {
     if (env !== 'test') {
