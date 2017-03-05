@@ -15,6 +15,7 @@ const request = require('request');
 const iconv = require('iconv-lite');
 const csvParser = require('csv-parser');
 const _ = require('lodash');
+const snappy = require('snappy')
 
 // USING MONGO LIBRARY
 // 2016-11-26, Curitiba - Brazil // @quagliato
@@ -89,7 +90,8 @@ function sync(config, CSVModel, ItemModel) {
         // be added as a batch.
         if ((i % 1000) === 0) {
           console.log(i + " records enqueued");
-          insertBatches.push(insertQueue);
+          let compress = snappy.compressSync(JSON.stringify(insertQueue));
+          insertBatches.push(compress);
           insertQueue = [];
         }
 
@@ -112,7 +114,9 @@ function sync(config, CSVModel, ItemModel) {
 
           // If there's something left on the queue, insert it as a batch
           if (insertQueue.length > 0) {
-            insertBatches.push(insertQueue);
+            console.log(i + " records enqueued");
+            let compress = snappy.compressSync(JSON.stringify(insertQueue));
+            insertBatches.push(compress);
             insertQueue = [];
           }
 
@@ -122,15 +126,17 @@ function sync(config, CSVModel, ItemModel) {
           }
           
           let batch = insertBatches[index];
-          mongoConnection.collection('items').insert(batch, function(err, results){
-            if (err) return false;
-            if (results) console.log((index + 1)  + ' of ' + insertBatches.length + ' added!');
-            index += 1;
-            return insertLoop(index, callback);
-          });
+          snappy.uncompress(batch, (err,decompressed) => {
+            mongoConnection.collection('items').insert(JSON.parse(decompressed), (err, results) => {
+              if (err) return false;
+              if (results) console.log((index + 1)  + ' of ' + insertBatches.length + ' added!');
+              index += 1;
+              return insertLoop(index, callback);
+            });
+          })
         };
 
-        return insertLoop(0, function(){
+        return insertLoop(0, () => {
           console.log(`-- End parsing ${csv.slug} (${i} lines imported)`);
           loop();
 
