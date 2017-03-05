@@ -20,14 +20,6 @@ const _ = require('lodash');
 // 2016-11-26, Curitiba - Brazil // @quagliato
 const mongodb = require('mongodb');
 const mongoskin = require('mongoskin');
-const mongoConnection = mongoskin.db(process.env.MONGODB_URI || config.database, {
-  native_parser: true,
-  auto_reconnect: true,
-  poolSize: 5,
-  server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
-  replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } }
-});
-
 
 function sync(config, CSVModel, ItemModel) {
   const insertModel = (csv, headers) => {
@@ -110,6 +102,12 @@ function sync(config, CSVModel, ItemModel) {
       }))
       .on('end', () => {
         // insertLoop process the batches (groups of 1000 records)
+        const mongoConnection = mongoskin.db(process.env.MONGODB_URI || config.database, {
+          native_parser: true,
+          auto_reconnect: true,
+          poolSize: 5,
+        });
+
         let insertLoop = function(index, callback){
 
           // If there's something left on the queue, insert it as a batch
