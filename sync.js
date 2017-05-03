@@ -62,8 +62,6 @@ function sync(config, CSVModel, ItemModel) {
 
       console.log(`-- Parsing ${csv.slug}`);
 
-      ItemModel.remove({"base": csv.slug}).catch(err => { console.error(`On remove all from ${csv.slug}`)});
-
       const dl = request({url: csv.url});
       dl.pipe(iconv.decodeStream('ISO-8859-1'))
       .pipe(iconv.encodeStream('utf8'))
@@ -136,6 +134,9 @@ function sync(config, CSVModel, ItemModel) {
           })
         };
 
+
+        ItemModel.remove({"base": csv.slug}).catch(err => { console.error(`On remove all from ${csv.slug}`)});
+
         return insertLoop(0, () => {
           console.log(`-- End parsing ${csv.slug} (${i} lines imported)`);
           loop();
@@ -143,11 +144,6 @@ function sync(config, CSVModel, ItemModel) {
           return true;
         });
 
-//        ItemModel.remove({"base": csv.slug}).catch(err => { console.error(`On remove all from ${csv.slug}`)});
-//        ItemModel.insertMany(insertQueue);
-        
-//        console.log(`-- End parsing ${csv.slug} (${i} lines imported)`);
-//        loop();
       });
     } else {
       console.log('Exit');
@@ -159,35 +155,43 @@ function sync(config, CSVModel, ItemModel) {
 return true;
 }
 
+//// EXECUTE EVERY 3 DAYS
+var date = new Date();
+var day = date.getUTCDate();
+if (day % 3 === 0) {
+  const base_json = process.env.BASE_JSON || config.base_json;
+  if ( base_json ) {
+    try {
+      request(base_json, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          config.base = JSON.parse(body);
 
-const base_json = process.env.BASE_JSON || config.base_json;
-if ( base_json ) {
-  try {
+          console.log('Loading csv databases ...');
+          sync(config, CSVModel, ItemModel);
 
-    request(base_json, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        config.base = JSON.parse(body);
+        } else {
+          console.log(error,response);
+          process.exit()
+        }
+      });
 
-        console.log('Loading csv databases ...');
-        sync(config, CSVModel, ItemModel);
-
-      } else {
-        console.log(error,response);
-        process.exit()
-      }
-    });
-
-  } catch (err) {
-    console.log(err);
-    process.exit()
+    } catch (err) {
+      console.log(err);
+      process.exit()
+    }
+  } else {
+    if ( config.base ) {
+      console.log('Loading csv databases ...');
+      sync(config, CSVModel, ItemModel);
+    } else {
+      console.log('No base defined');
+      process.exit()
+    }
   }
 } else {
-  if ( config.base ) {
-    console.log('Loading csv databases ...');
-    sync(config, CSVModel, ItemModel);
-  } else {
-    console.log('No base defined');
-    process.exit()
-  }
+  console.log('Not today');
+  process.exit()
 }
+
+
 
