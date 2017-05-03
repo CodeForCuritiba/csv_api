@@ -155,10 +155,10 @@ function sync(config, CSVModel, ItemModel) {
 return true;
 }
 
-//// EXECUTE EVERY 3 DAYS
+//// EXECUTE EVERY 5 DAYS
 var date = new Date();
 var day = date.getUTCDate();
-if (day % 3 === 0) {
+if (day % 5 === 0) {
   const base_json = process.env.BASE_JSON || config.base_json;
   if ( base_json ) {
     try {
