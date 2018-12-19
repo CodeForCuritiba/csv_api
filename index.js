@@ -95,9 +95,9 @@ app.get('/:slug/items', (req, res) => {
   find['base'] = req.params.slug;
   
   const options = { 'limit': 30 };
-  if (req.query.limit) options['limit'] = 1 * req.query.limit;
-  if (req.query.order) options['order'] = req.query.order;
-  if (req.query.skip)  options['skip']  = req.query.skip;
+  if (req.query.limit) options['limit'] = 1 * req.query.limit;  
+  if (req.query.sort) options['sort'] = JSON.parse(req.query.sort);  
+  if (req.query.skip)  options['skip']  = parseFloat(req.query.skip);
 
   ItemModel.find(find, {}, options) 
     .then(results => {
