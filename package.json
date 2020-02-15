@@ -6,7 +6,7 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "csv": "^1.1.0",
-    "csv-parse": "^1.1.7",
+    "csv-parse": "^4.8.5",
     "csv-parser": "^1.11.0",
     "ejs": "^2.5.2",
     "event-stream": "^3.3.4",
